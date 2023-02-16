@@ -1,61 +1,15 @@
 <script lang="ts">
-	import {initializeApp} from 'firebase/app';
-	import {
-		getAuth,
-		GoogleAuthProvider,
-		onAuthStateChanged,
-		signInWithPopup,
-		type User,
-	} from 'firebase/auth';
-	import {
-		doc,
-		DocumentReference,
-		getFirestore,
-		setDoc,
-	} from 'firebase/firestore';
+	import {init, user} from '$lib/firebase';
+	import {GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
 	import 'w3-css/w3.css';
 	import type {PageServerData} from './$types';
 
 	export let data: PageServerData;
 
-	const app = initializeApp(data.firebaseConfig);
-	const db = getFirestore(app);
-	const auth = getAuth(app);
-	let user: User | null;
-
-	// signInAnonymously(auth).then(async ({user}) => {
-	// 	const userRef = doc(db, 'users', user.uid);
-	// 	await setDoc(
-	// 		userRef,
-	// 		{
-	// 			name: 'Anonymous',
-	// 		},
-	// 		{merge: true},
-	// 	);
-	// });
-
-	function getRef(): DocumentReference | null {
-		if (!user) return null;
-		return doc(db, 'users', user.uid);
-	}
-
-	onAuthStateChanged(auth, async (newUser) => {
-		user = newUser;
-		if (!newUser) return;
-		await setDoc(
-			getRef()!,
-			{
-				name: newUser.displayName,
-				email: newUser.email,
-				provider: newUser.providerData,
-			},
-			// Use this to keep from overwritting data
-			// {merge: true},
-		);
-	});
+	const {app, db, auth} = init(data.firebaseConfig);
 </script>
 
-{#if !user}
+{#if !$user}
 	<button
 		class="w3-button w3-green"
 		on:click={() => {
