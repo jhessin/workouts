@@ -31,7 +31,7 @@ let unsub: Unsubscribe | undefined;
  * @param config The FirebaseOptions to initialize an app with if necessary.
  * @returns A wrapper for the firebase app and all other firebase resources.
  */
-export function init(config: FirebaseOptions): iApp {
+export function init(config: FirebaseOptions = {}): iApp {
 	try {
 		app = getApp();
 	} catch (error) {
