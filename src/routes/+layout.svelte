@@ -18,10 +18,11 @@
 	<div
 		class="w3-sidebar w3-bar-block w3-collapse w3-card"
 		transition:slide={{delay: 250, duration: 1000, easing: quintOut}}
+		style="width: 250px;"
 		bind:this={sidebar}
 	>
 		<button
-			class="w3-button w3-display-topright"
+			class="w3-button w3-display-topright w3-xlarge"
 			on:click={() => (showSidebar = false)}
 		>
 			&times
