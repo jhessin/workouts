@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "work-n-out"
-  }
+    "default": "work-n-out",
+    "workout": "work-n-out"
+  },
+  "targets": {},
+  "etags": {}
 }

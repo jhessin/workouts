@@ -29,6 +29,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"firebase": "^9.17.1"
+		"firebase": "^9.17.1",
+		"w3-css": "^4.1.0"
 	}
 }
