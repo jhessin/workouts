@@ -13,6 +13,7 @@ import {
 } from 'firebase/auth';
 import {doc, getFirestore, setDoc, type Firestore} from 'firebase/firestore';
 import {writable, type Writable} from 'svelte/store';
+import {firebaseConfig} from './firebaseConfig';
 
 let app: FirebaseApp;
 export const user: Writable<User | null> = writable();
@@ -31,7 +32,7 @@ let unsub: Unsubscribe | undefined;
  * @param config The FirebaseOptions to initialize an app with if necessary.
  * @returns A wrapper for the firebase app and all other firebase resources.
  */
-export function init(config: FirebaseOptions = {}): iApp {
+export function init(config: FirebaseOptions = firebaseConfig): iApp {
 	try {
 		app = getApp();
 	} catch (error) {
