@@ -1,4 +1,7 @@
-<h2 class="section-header">Welcome to Work-N-Out</h2>
+<h2 class="section-header">
+	Welcome to <br />
+	Work-N-Out
+</h2>
 <p>
 	This is an app to help you work out. You can create exercises and then put
 	them together into a workout routine with timers, and text descriptions or

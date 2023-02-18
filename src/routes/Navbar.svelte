@@ -8,9 +8,10 @@
 	const {auth} = init();
 </script>
 
+<!-- {@debug $page} -->
+
 <nav transition:slide={{delay: 250, duration: 1000, easing: quintOut}}>
 	<ul>
-		<li><a href="/">Home</a></li>
 		{#if !$user}
 			<li>
 				<a
@@ -24,8 +25,30 @@
 				</a>
 			</li>
 		{:else}
-			<li><a href="/exercises">Exercises</a></li>
-			<li><a href="/workouts">Workouts</a></li>
+			<li>
+				<a
+					href="/"
+					class:active={$page.url.pathname === '/'}
+				>
+					Home
+				</a>
+			</li>
+			<li>
+				<a
+					href="/exercises"
+					class:active={$page.url.pathname.startsWith('/exercises')}
+				>
+					Exercises
+				</a>
+			</li>
+			<li>
+				<a
+					href="/workouts"
+					class:active={$page.url.pathname.startsWith('/workouts')}
+				>
+					Workouts
+				</a>
+			</li>
 			<li>
 				<a
 					class="sign-out-button button"
@@ -52,6 +75,7 @@
 
 	nav ul {
 		margin: 0;
+		/* overflow: auto; */
 	}
 
 	nav li {
@@ -71,7 +95,11 @@
 	}
 
 	.button {
-		float: right;
+		position: right;
+	}
+
+	.active {
+		background-color: midnightblue;
 	}
 
 	/* .sign-out-button {
