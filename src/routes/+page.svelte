@@ -18,4 +18,9 @@
 		text-align: center;
 		font-size: 2.5rem;
 	}
+
+	p {
+		margin: 0 auto;
+		max-width: 90%;
+	}
 </style>
