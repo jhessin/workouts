@@ -4,7 +4,8 @@
 	import type {PageData} from './$types';
 
 	export let data: PageData;
-	const oldName = data.name;
+
+	let id: string = data.id!;
 	let name: string = data.name;
 	let description = data.description;
 	let videoUrl = data.videoUrl;
@@ -13,10 +14,8 @@
 <form
 	on:submit|preventDefault={async () => {
 		if (!name) return;
-		if (name !== oldName) {
-			await deleteExercise(oldName);
-		}
 		await saveExercise({
+			id,
 			name,
 			description,
 			videoUrl,
@@ -50,7 +49,7 @@
 	<button
 		class="danger"
 		on:click|preventDefault={async () => {
-			await deleteExercise(oldName);
+			await deleteExercise(id);
 			goto('/exercises');
 		}}
 	>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {saveExercise} from '$lib/db';
+	import {newExercise} from '$lib/db';
 
 	let name: string = '';
 	let description: string = '';
@@ -10,7 +10,7 @@
 <form
 	on:submit|preventDefault={() => {
 		if (!name) return;
-		saveExercise({
+		newExercise({
 			name,
 			description,
 			videoUrl,

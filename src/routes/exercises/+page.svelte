@@ -4,16 +4,16 @@
 	let promise = getExercises();
 </script>
 
-<a href="/exercises/new">+</a>
+<a href="/exercises/new">New Exercise</a>
 
 <ul>
 	{#await promise}
 		<h1 class="loading">Loading exercises</h1>
 	{:then exercises}
-		{#each exercises as exercise (exercise.name)}
+		{#each exercises as exercise (exercise.id)}
 			<li>
 				{exercise.name}
-				<a href="/exercises/edit/{exercise.name}">edit</a>
+				<a href="/exercises/edit/{exercise.id}">edit</a>
 			</li>
 		{/each}
 	{/await}
