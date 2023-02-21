@@ -4,6 +4,7 @@
 		"**/node_modules": true,
 		"build": true,
 		".svelte-kit": true,
+		"pnpm-lock.yaml": true,
 		"package": true,
 		"**/.env": false,
 		"**/.env.*": false,
