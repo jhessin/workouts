@@ -1,4 +1,4 @@
-<h1>Work-n-Out</h1>
+<h1 class="font-effect-neon">Work-n-Out</h1>
 
 <style>
 	h1 {

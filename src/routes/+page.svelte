@@ -1,4 +1,4 @@
-<h2 class="section-header">
+<h2 class="section-header font-effect-fire">
 	Welcome to <br />
 	Work-N-Out
 </h2>
@@ -13,12 +13,10 @@
 </p>
 
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap');
-
 	.section-header {
 		font-family: 'Metal Mania';
+		/* font-family: Sofia, sans-serif; */
 		font-weight: normal;
-		color: lightsteelblue;
 		text-align: center;
 		font-size: 2.5rem;
 	}
