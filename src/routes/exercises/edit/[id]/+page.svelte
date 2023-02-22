@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {deleteExercise, saveExercise} from '$lib/db';
+	import {deleteExercise, updateExercise} from '$lib/db';
 	import type {PageData} from './$types';
 
 	export let data: PageData;
@@ -14,7 +14,7 @@
 <form
 	on:submit|preventDefault={async () => {
 		if (!name) return;
-		await saveExercise({
+		await updateExercise({
 			id,
 			name,
 			description,
