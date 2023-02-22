@@ -14,7 +14,7 @@
 
 <style>
 	.section-header {
-		font-family: 'Metal Mania';
+		font-family: 'Metal Mania', Copperplate, Papyrus, fantasy;
 		/* font-family: Sofia, sans-serif; */
 		font-weight: normal;
 		text-align: center;

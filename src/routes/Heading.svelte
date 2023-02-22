@@ -5,7 +5,7 @@
 		text-align: center;
 		margin: 0;
 		font-size: 4em;
-		font-family: Nabla;
+		font-family: Nabla, Copperplate, Papyrus, fantasy;
 		font-weight: normal;
 	}
 </style>
