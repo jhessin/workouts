@@ -11,7 +11,7 @@
 	{#await promise}
 		<h1 class="loading">Loading exercises</h1>
 	{:then exercises}
-		{#each exercises as exercise (exercise.id)}
+		{#each exercises as exercise, index (index)}
 			<li>
 				<div class="left">
 					{exercise.name}

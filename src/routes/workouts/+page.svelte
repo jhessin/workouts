@@ -1,8 +1,17 @@
 <script lang="ts">
-	import {getWorkouts} from '$lib/db';
+	import {getWorkouts, type Workout} from '$lib/db';
 	import Button from 'comp/Button.svelte';
 
 	const workoutPromise = getWorkouts();
+
+	function getWorkoutTime(workout: Workout): string {
+		const totalSeconds = workout.exercises
+			.map((obj) => Object.values(obj)[0])
+			.reduce((partialSum, a) => partialSum + a, 0);
+		const minutes = totalSeconds / 60;
+		const seconds = totalSeconds % 60;
+		return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+	}
 </script>
 
 <Button href="/workouts/new">New Workout</Button>
@@ -19,7 +28,7 @@
 					<Button href="/workouts/edit/{workout.id}">edit</Button>
 				</div>
 				<div class="right">
-					{workout.exercises.length} Exercises
+					{getWorkoutTime(workout)}
 				</div>
 			</li>
 		{/each}

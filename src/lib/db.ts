@@ -19,15 +19,19 @@ export interface Exercise {
 }
 
 export const Rest: Exercise = {
-	id: '',
+	id: ' ',
 	name: 'Rest',
 	description: 'Take a breather.',
+};
+
+export type TimedExercise = {
+	[key: string]: number;
 };
 
 export interface Workout {
 	id?: string;
 	name: string;
-	exercises: [string, number][];
+	exercises: TimedExercise[];
 }
 
 function exerciseRef(): CollectionReference {
@@ -55,7 +59,11 @@ export async function getExercises(): Promise<Exercise[]> {
 	snapshot.forEach((exercise) => {
 		docs.push({...exercise.data(), id: exercise.id} as Exercise);
 	});
-	return docs;
+	return docs.sort((a, b) => {
+		if (a.name < b.name) return -1;
+		if (a.name === b.name) return 0;
+		return 1;
+	});
 }
 
 export async function getWorkouts(): Promise<Workout[]> {
@@ -69,7 +77,7 @@ export async function getWorkouts(): Promise<Workout[]> {
 }
 
 export async function getExercise(id: string): Promise<Exercise> {
-	if (id === '') return Rest;
+	if (id === ' ') return Rest;
 	const exercise = await getDoc(doc(exerciseRef(), id));
 	return {...exercise.data(), id} as Exercise;
 }
