@@ -1,10 +1,11 @@
 <script lang="ts">
 	import {getExercises} from '$lib/db';
+	import Button from 'comp/Button.svelte';
 
 	let promise = getExercises();
 </script>
 
-<a href="/exercises/new">New Exercise</a>
+<Button href="/exercises/new">New Exercise</Button>
 
 <ul>
 	{#await promise}
@@ -15,7 +16,7 @@
 				<div class="left">
 					{exercise.name}
 					<br />
-					<a href="/exercises/edit/{exercise.id}">edit</a>
+					<Button href="/exercises/edit/{exercise.id}">edit</Button>
 				</div>
 				<div class="right">
 					{exercise.description}
@@ -40,21 +41,6 @@
 		border: 1px dotted white;
 		border-right-style: solid;
 		border-left-style: solid;
-	}
-
-	a:link,
-	a:visited {
-		background-color: rgba(9, 129, 15, 0.25);
-		color: white;
-		padding: 4px 5px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-	}
-
-	a:hover,
-	a:active {
-		background-color: rgb(9, 129, 15);
 	}
 
 	li .left {

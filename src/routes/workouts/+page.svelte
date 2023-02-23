@@ -1,11 +1,11 @@
 <script lang="ts">
-	import {getExercises, getWorkouts} from '$lib/db';
+	import {getWorkouts} from '$lib/db';
+	import Button from 'comp/Button.svelte';
 
-	const exercisePromise = getExercises();
 	const workoutPromise = getWorkouts();
 </script>
 
-<a href="/workouts/new">New Workout</a>
+<Button href="/workouts/new">New Workout</Button>
 
 <ul>
 	{#await workoutPromise}
@@ -16,7 +16,7 @@
 				<div class="left">
 					{workout.name}
 					<br />
-					<a href="/workouts/edit/{workout.id}">edit</a>
+					<Button href="/workouts/edit/{workout.id}">edit</Button>
 				</div>
 				<div class="right">
 					{workout.exercises.length} Exercises
