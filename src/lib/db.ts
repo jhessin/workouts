@@ -69,6 +69,7 @@ export async function getWorkouts(): Promise<Workout[]> {
 }
 
 export async function getExercise(id: string): Promise<Exercise> {
+	if (id === '') return Rest;
 	const exercise = await getDoc(doc(exerciseRef(), id));
 	return {...exercise.data(), id} as Exercise;
 }
@@ -100,5 +101,10 @@ export async function updateWorkout(data: Workout) {
 
 export async function deleteExercise(name: string) {
 	const ref = exerciseRef();
+	await deleteDoc(doc(ref, name));
+}
+
+export async function deleteWorkout(name: string) {
+	const ref = workoutRef();
 	await deleteDoc(doc(ref, name));
 }
