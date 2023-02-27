@@ -1,17 +1,15 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {newWorkout} from '$lib/db';
+	import {Workout} from '$lib/Workout';
 
 	let name: string = '';
 </script>
 
 <form
-	on:submit|preventDefault={() => {
+	on:submit|preventDefault={async () => {
 		if (!name) return;
-		newWorkout({
-			name,
-			exercises: [],
-		}).then(() => goto('/workouts'));
+		const workout = await Workout.new(name);
+		goto('/workouts');
 	}}
 >
 	<label for="name">Workout Name *</label>

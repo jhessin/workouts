@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {getExercises} from '$lib/db';
+	import {Exercise} from '$lib/Workout';
 	import Button from 'comp/Button.svelte';
 
-	let promise = getExercises();
+	let promise = Exercise.allExercises();
 </script>
 
 <Button href="/exercises/new">New Exercise</Button>
@@ -17,6 +17,15 @@
 					{exercise.name}
 					<br />
 					<Button href="/exercises/edit/{exercise.id}">edit</Button>
+					<Button
+						button
+						on:click={async () => {
+							console.log('Removing exercise');
+							await exercise.rm();
+							promise = Exercise.allExercises();
+						}}
+						value="Delete"
+					/>
 				</div>
 				<div class="right">
 					{exercise.description}

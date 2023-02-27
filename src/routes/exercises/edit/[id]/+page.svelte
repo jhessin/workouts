@@ -1,25 +1,20 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {deleteExercise, updateExercise} from '$lib/db';
 	import type {PageData} from './$types';
 
 	export let data: PageData;
 
-	let id: string = data.id!;
-	let name: string = data.name;
-	let description = data.description;
-	let videoUrl = data.videoUrl;
+	let {exercise} = data;
+	let name: string = exercise.name;
+	let description = exercise.description;
 </script>
 
 <form
 	on:submit|preventDefault={async () => {
 		if (!name) return;
-		await updateExercise({
-			id,
-			name,
-			description,
-			videoUrl,
-		});
+		exercise.name = name;
+		exercise.description = description;
+		await exercise.save();
 		goto('/exercises');
 	}}
 >
@@ -29,13 +24,6 @@
 		name="name"
 		id="exercise-name"
 		bind:value={name}
-	/>
-
-	<label for="videoUrl">Video URL</label>
-	<input
-		inputmode="url"
-		name="videoUrl"
-		bind:value={videoUrl}
 	/>
 
 	<label for="description">Description</label>
@@ -49,7 +37,7 @@
 	<button
 		class="danger"
 		on:click|preventDefault={async () => {
-			await deleteExercise(id);
+			await exercise.rm();
 			goto('/exercises');
 		}}
 	>

@@ -42,37 +42,48 @@ function workoutRef(): CollectionReference {
 }
 
 export interface iExercise {
-	id?: string;
+	id: string;
 	name: string;
 	description?: string;
 }
 
 export class Exercise implements iExercise {
-	_id?: string;
+	_id: string;
 	name: string;
 	description?: string;
 
-	public get id(): string | undefined {
-		if (this._id) return this._id;
-		addDoc(exerciseRef(), this.data).then((ref) => (this._id = ref.id));
+	public get id(): string {
+		return this._id;
 	}
 
-	constructor(name: string, description = '') {
+	private constructor(name: string, description: string | undefined) {
 		this.name = name;
 		this.description = description;
+		// TODO - find a better way to do this.
+		this._id = '';
+	}
+
+	public static async new(
+		name: string,
+		description: string | undefined,
+	): Promise<Exercise> {
+		const ex = new Exercise(name, description);
+		const ref = await addDoc(exerciseRef(), ex.data);
+		ex._id = ref.id;
+		await setDoc(doc(exerciseRef(), ref.id), ex.data);
+		return ex;
 	}
 
 	public get data(): iExercise {
 		return {
+			id: this.id,
 			name: this.name,
 			description: this.description,
 		};
 	}
 
-	public save() {
-		if (this.id) {
-			setDoc(doc(exerciseRef(), this.id), this.data, {merge: true});
-		}
+	public async save() {
+		await setDoc(doc(exerciseRef(), this.id), this.data, {merge: true});
 	}
 
 	public static fromData(data: iExercise): Exercise {
@@ -83,11 +94,20 @@ export class Exercise implements iExercise {
 
 	public static async fromDB(id: string): Promise<Exercise> {
 		const data = await getDoc(doc(exerciseRef(), id));
-		return Exercise.fromData(data.data() as iExercise);
+		const exercise = Exercise.fromData(data.data() as iExercise);
+		exercise._id = id;
+		return exercise;
+	}
+
+	public timed(time: number): iTimedExercise {
+		return {
+			id: this.id,
+			time,
+		};
 	}
 
 	public async rm() {
-		await deleteDoc(doc(exerciseRef(), this._id));
+		await deleteDoc(doc(exerciseRef(), this.id));
 	}
 
 	public static async allExercises(): Promise<Exercise[]> {
@@ -95,7 +115,11 @@ export class Exercise implements iExercise {
 
 		const docs: Exercise[] = [];
 		snapshot.forEach((exercise) => {
-			docs.push(Exercise.fromData(exercise.data() as iExercise));
+			const ex = Exercise.fromData(exercise.data() as iExercise);
+			ex._id = exercise.id;
+			// uncomment the following to update the Database.
+			// ex.save();
+			docs.push(ex);
 		});
 		return docs.sort((a, b) => {
 			if (a.name < b.name) return -1;
@@ -107,18 +131,9 @@ export class Exercise implements iExercise {
 
 export interface iTimedExercise {
 	/** The id of the exercise */
-	id?: string;
+	id: string;
 	/** The time (in seconds) the exercise should be performed */
 	time: number;
-}
-
-export class TimedExercise extends Exercise implements iTimedExercise {
-	time: number;
-
-	constructor(name: string, description = '', time = 20) {
-		super(name, description);
-		this.time = time;
-	}
 }
 
 export interface iExerciseSet {
@@ -127,40 +142,56 @@ export interface iExerciseSet {
 
 export class ExerciseSet implements iExerciseSet {
 	exercises: iTimedExercise[] = [];
+
+	public get totalTime(): number {
+		return this.exercises
+			.map((ex) => ex.time)
+			.reduce((partialSum, a) => partialSum + a, 0);
+	}
 }
 
 export interface iWorkout {
-	id?: string;
+	id: string;
 	name: string;
 	exercises: iTimedExercise[];
 }
 
 export class Workout extends ExerciseSet implements iWorkout {
-	_id?: string | undefined;
+	_id: string;
 	name: string;
 
-	constructor(name: string, exercises: iTimedExercise[] = []) {
+	public get id(): string {
+		return this._id;
+	}
+
+	private constructor(name: string, exercises: iTimedExercise[] = []) {
 		super();
 		this.name = name;
 		this.exercises = exercises;
+		this._id = '';
+	}
+
+	public static async new(
+		name: string,
+		exercises: iTimedExercise[] = [],
+	): Promise<Workout> {
+		const workout = new Workout(name, exercises);
+		const ref = await addDoc(workoutRef(), workout.data);
+		workout._id = ref.id;
+		await setDoc(doc(workoutRef(), ref.id), workout.data);
+		return workout;
 	}
 
 	public get data(): iWorkout {
 		return {
+			id: this.id,
 			name: this.name,
 			exercises: this.exercises,
 		};
 	}
 
-	public get id(): string | undefined {
-		if (this._id) return this._id;
-		addDoc(workoutRef(), this.data).then((ref) => (this._id = ref.id));
-	}
-
-	public save() {
-		if (this.id) {
-			setDoc(doc(workoutRef(), this.id), this.data, {merge: true});
-		}
+	public async save() {
+		await setDoc(doc(workoutRef(), this.id), this.data, {merge: true});
 	}
 
 	public static fromData(data: iWorkout): Workout {
@@ -171,11 +202,13 @@ export class Workout extends ExerciseSet implements iWorkout {
 
 	public static async fromDB(id: string): Promise<Workout> {
 		const data = await getDoc(doc(workoutRef(), id));
-		return Workout.fromData(data.data() as iWorkout);
+		const workout = Workout.fromData(data.data() as iWorkout);
+		workout._id = id;
+		return workout;
 	}
 
 	public async rm() {
-		await deleteDoc(doc(workoutRef(), this._id));
+		await deleteDoc(doc(workoutRef(), this.id));
 	}
 
 	public static async allWorkouts(): Promise<Workout[]> {
@@ -183,8 +216,9 @@ export class Workout extends ExerciseSet implements iWorkout {
 
 		const docs: Workout[] = [];
 		snapshot.forEach((workout) => {
-			// docs.push({...workout.data(), id: workout.id} as Workout);
-			docs.push(Workout.fromData(workout.data() as iWorkout));
+			const wk = Workout.fromData(workout.data() as iWorkout);
+			wk._id = workout.id;
+			docs.push(wk);
 		});
 		return docs;
 	}

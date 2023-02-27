@@ -1,42 +1,27 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {
-		deleteWorkout,
-		getExercise,
-		getExercises,
-		updateWorkout,
-		type TimedExercise,
-	} from '$lib/db';
+	import {Exercise} from '$lib/Workout';
 	import type {PageData} from './$types';
 
 	export let data: PageData;
 
-	let id: string = data.id!;
-	let name: string = data.name;
-	let exercises: [string, number][] = data.exercises.map((obj) => {
-		let id = Object.keys(obj)[0];
-		let time = obj[id];
-		return [id, time];
-	});
-	const exercisePromise = getExercises();
+	let {workout} = data;
+
+	let {id, name, exercises} = workout;
+	const exercisePromise = Exercise.allExercises();
 	let newExerciseId: string;
 	let newTime: number = 20;
 
-	async function exerciseName(id: string): Promise<String> {
-		const exercise = await getExercise(id);
+	async function exerciseName(id: string = ''): Promise<String> {
+		const exercise = await Exercise.fromDB(id);
 		return exercise.name;
 	}
+
 	async function submitForm() {
 		if (!name) return;
-		await updateWorkout({
-			id,
-			name,
-			exercises: exercises.map(([id, time]) => {
-				let temp: TimedExercise = {};
-				temp[id] = time;
-				return temp;
-			}),
-		});
+		workout.name = name;
+		workout.exercises = exercises;
+		await workout.save();
 		goto('/workouts');
 	}
 </script>
@@ -53,22 +38,20 @@
 	<br />
 
 	<ul>
-		{#each exercises as [exId, time], index (index)}
+		{#each exercises as ex, index (index)}
 			<li>
-				{#await exerciseName(exId)}
-					<label for="ex{exId}">{exId}</label>
-					<label for="time{exId}">{time}</label>
-				{:then exercise}
-					<label for="ex{exId}">{exercise}</label>
-					<label for="time{exId}">{time}</label>
+				{#await exerciseName(ex.id)}
+					<label for="ex{ex.id}">{ex.id}</label>
+					<label for="time{ex.id}">{ex.time}</label>
+				{:then name}
+					<label for="ex{ex.id}">{name}</label>
+					<label for="time{ex.id}">{ex.time}</label>
 					<input
 						type="button"
-						id="ex{exId}"
+						id="ex{ex.id}"
 						class="danger"
 						on:click|preventDefault={async () => {
-							exercises = exercises.filter(
-								([innerId, time]) => innerId !== exId,
-							);
+							exercises = exercises.filter((exercise) => ex.id !== exercise.id);
 						}}
 						value="Delete from workout"
 					/>
@@ -81,8 +64,14 @@
 		<p>Loading Exercises...</p>
 	{:then allExercises}
 		<form
-			on:submit|preventDefault={() => {
-				exercises = [...exercises, [newExerciseId, newTime]];
+			on:submit|preventDefault={async () => {
+				exercises = [
+					...exercises,
+					{
+						id: newExerciseId,
+						time: newTime,
+					},
+				];
 				newExerciseId = '';
 				newTime = 20;
 			}}
@@ -116,7 +105,7 @@
 	<button
 		class="danger"
 		on:click|preventDefault={async () => {
-			await deleteWorkout(id);
+			await workout.rm();
 			goto('/workouts');
 		}}
 	>

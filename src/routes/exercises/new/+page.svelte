@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {goto} from '$app/navigation';
-	import {newExercise} from '$lib/db';
+	import {Exercise} from '$lib/Workout';
 
 	let name: string = '';
 	let description: string = '';
@@ -8,13 +8,10 @@
 </script>
 
 <form
-	on:submit|preventDefault={() => {
+	on:submit|preventDefault={async () => {
 		if (!name) return;
-		newExercise({
-			name,
-			description,
-			videoUrl,
-		}).then(() => goto('/exercises'));
+		const exercise = await Exercise.new(name, description);
+		goto('/exercises');
 	}}
 >
 	<label for="name">Exercise Name *</label>
