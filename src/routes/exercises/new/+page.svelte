@@ -4,7 +4,6 @@
 
 	let name: string = '';
 	let description: string = '';
-	let videoUrl: string = '';
 </script>
 
 <form
@@ -20,13 +19,6 @@
 		name="name"
 		id="exercise-name"
 		bind:value={name}
-	/>
-
-	<label for="videoUrl">Video URL</label>
-	<input
-		inputmode="url"
-		name="videoUrl"
-		bind:value={videoUrl}
 	/>
 
 	<label for="description">Description</label>

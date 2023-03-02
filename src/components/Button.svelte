@@ -4,26 +4,33 @@
 	export let submit: boolean = false;
 	export let form: boolean = false;
 	export let value: string = '';
+	export let danger: boolean = false;
 </script>
 
 {#if button}
-	<button on:click>
+	<button
+		on:click|preventDefault
+		class:danger
+	>
 		<slot>{value}</slot>
 	</button>
 {:else if submit}
 	<input
+		class:danger
 		type="submit"
 		on:click
 		{value}
 	/>
 {:else if form}
 	<input
+		class:danger
 		type="button"
-		on:click
+		on:click|preventDefault
 		{value}
 	/>
 {:else}
 	<a
+		class:danger
 		{href}
 		on:click
 	>
@@ -33,6 +40,7 @@
 
 <style>
 	button,
+	input,
 	a:link,
 	a:visited {
 		background-color: rgba(9, 129, 15, 0.25);
@@ -44,8 +52,13 @@
 	}
 
 	button:active,
+	input,
 	a:hover,
 	a:active {
 		background-color: rgb(9, 129, 15);
+	}
+
+	.danger {
+		background-color: red;
 	}
 </style>

@@ -6,7 +6,7 @@
 
 	function getWorkoutTime(workout: Workout): string {
 		const totalSeconds = workout.totalTime;
-		const minutes = totalSeconds / 60;
+		const minutes = Math.floor(totalSeconds / 60);
 		const seconds = totalSeconds % 60;
 		return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
 	}

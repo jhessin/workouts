@@ -51,6 +51,7 @@ export class Exercise implements iExercise {
 	_id: string;
 	name: string;
 	description?: string;
+	selected = false;
 
 	public get id(): string {
 		return this._id;
@@ -138,10 +139,29 @@ export interface iTimedExercise {
 
 export interface iExerciseSet {
 	exercises: iTimedExercise[];
+	repeat: number;
 }
 
 export class ExerciseSet implements iExerciseSet {
 	exercises: iTimedExercise[] = [];
+	repeat = 1;
+
+	constructor(
+		data: iExerciseSet = {
+			exercises: [],
+			repeat: 1,
+		},
+	) {
+		this.exercises = data.exercises;
+		this.repeat = data.repeat;
+	}
+
+	public get data(): iExerciseSet {
+		return {
+			exercises: this.exercises,
+			repeat: this.repeat,
+		};
+	}
 
 	public get totalTime(): number {
 		return this.exercises
@@ -153,29 +173,43 @@ export class ExerciseSet implements iExerciseSet {
 export interface iWorkout {
 	id: string;
 	name: string;
-	exercises: iTimedExercise[];
+	sets: iExerciseSet[];
 }
 
-export class Workout extends ExerciseSet implements iWorkout {
+export class Workout implements iWorkout {
 	_id: string;
 	name: string;
+	sets: ExerciseSet[];
 
 	public get id(): string {
 		return this._id;
 	}
 
-	private constructor(name: string, exercises: iTimedExercise[] = []) {
-		super();
+	public get totalTime(): number {
+		return this.sets
+			.map((ex) => ex.totalTime * ex.repeat)
+			.reduce((partial, a) => partial + a, 0);
+	}
+
+	private constructor(name: string, sets: iExerciseSet[] = []) {
 		this.name = name;
-		this.exercises = exercises;
+		this.sets = sets.map((set) => new ExerciseSet(set));
 		this._id = '';
+	}
+
+	public addSet() {
+		this.sets.push(new ExerciseSet());
+	}
+
+	public addToSet(index: number, exercise: iTimedExercise) {
+		this.sets[index].exercises.push(exercise);
 	}
 
 	public static async new(
 		name: string,
-		exercises: iTimedExercise[] = [],
+		sets: iExerciseSet[],
 	): Promise<Workout> {
-		const workout = new Workout(name, exercises);
+		const workout = new Workout(name, sets);
 		const ref = await addDoc(workoutRef(), workout.data);
 		workout._id = ref.id;
 		await setDoc(doc(workoutRef(), ref.id), workout.data);
@@ -186,7 +220,7 @@ export class Workout extends ExerciseSet implements iWorkout {
 		return {
 			id: this.id,
 			name: this.name,
-			exercises: this.exercises,
+			sets: this.sets.map((set) => set.data),
 		};
 	}
 
@@ -195,7 +229,7 @@ export class Workout extends ExerciseSet implements iWorkout {
 	}
 
 	public static fromData(data: iWorkout): Workout {
-		const e = new Workout(data.name, data.exercises);
+		const e = new Workout(data.name, data.sets);
 		e._id = data.id;
 		return e;
 	}
