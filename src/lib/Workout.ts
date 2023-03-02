@@ -57,7 +57,7 @@ export class Exercise implements iExercise {
 		return this._id;
 	}
 
-	private constructor(name: string, description: string | undefined) {
+	protected constructor(name: string, description: string | undefined) {
 		this.name = name;
 		this.description = description;
 		// TODO - find a better way to do this.
@@ -100,11 +100,8 @@ export class Exercise implements iExercise {
 		return exercise;
 	}
 
-	public timed(time: number): iTimedExercise {
-		return {
-			id: this.id,
-			time,
-		};
+	public timed(time: number): TimedExercise {
+		return new TimedExercise(this, time);
 	}
 
 	public async rm() {
@@ -137,13 +134,40 @@ export interface iTimedExercise {
 	time: number;
 }
 
+export class TimedExercise
+	extends Exercise
+	implements iTimedExercise, iExercise
+{
+	time: number;
+
+	constructor(exercise: Exercise, time: number) {
+		super(exercise.name, exercise.description);
+		this._id = exercise.id;
+		this.time = time;
+		this.name = exercise.name;
+		this.description = exercise.description;
+	}
+
+	static async fromTimedData(data: iTimedExercise): Promise<TimedExercise> {
+		const exercise = await Exercise.fromDB(data.id);
+		return new TimedExercise(exercise, data.time);
+	}
+
+	public get timedData(): iTimedExercise {
+		return {
+			id: this.id,
+			time: this.time,
+		};
+	}
+}
+
 export interface iExerciseSet {
 	exercises: iTimedExercise[];
 	repeat: number;
 }
 
 export class ExerciseSet implements iExerciseSet {
-	exercises: iTimedExercise[] = [];
+	exercises: TimedExercise[] = [];
 	repeat = 1;
 
 	constructor(
@@ -152,13 +176,18 @@ export class ExerciseSet implements iExerciseSet {
 			repeat: 1,
 		},
 	) {
-		this.exercises = data.exercises;
+		this.exercises = [];
+		data.exercises.forEach((ex, index) => {
+			TimedExercise.fromTimedData(ex).then(
+				(te) => (this.exercises[index] = te),
+			);
+		});
 		this.repeat = data.repeat;
 	}
 
 	public get data(): iExerciseSet {
 		return {
-			exercises: this.exercises,
+			exercises: this.exercises.map((ex) => ex.timedData),
 			repeat: this.repeat,
 		};
 	}
@@ -195,14 +224,6 @@ export class Workout implements iWorkout {
 		this.name = name;
 		this.sets = sets.map((set) => new ExerciseSet(set));
 		this._id = '';
-	}
-
-	public addSet() {
-		this.sets.push(new ExerciseSet());
-	}
-
-	public addToSet(index: number, exercise: iTimedExercise) {
-		this.sets[index].exercises.push(exercise);
 	}
 
 	public static async new(

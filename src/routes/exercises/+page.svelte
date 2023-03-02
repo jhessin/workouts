@@ -1,38 +1,26 @@
 <script lang="ts">
-	import {Exercise} from '$lib/Workout';
 	import Button from 'comp/Button.svelte';
+	import type {PageData} from './$types';
 
-	let promise = Exercise.allExercises();
+	export let data: PageData;
+	const {exercises} = data;
 </script>
 
 <Button href="/exercises/new">New Exercise</Button>
 
 <ul>
-	{#await promise}
-		<h1 class="loading">Loading exercises</h1>
-	{:then exercises}
-		{#each exercises as exercise, index (index)}
-			<li>
-				<div class="left">
-					{exercise.name}
-					<br />
-					<Button href="/exercises/edit/{exercise.id}">edit</Button>
-					<Button
-						button
-						on:click={async () => {
-							console.log('Removing exercise');
-							await exercise.rm();
-							promise = Exercise.allExercises();
-						}}
-						value="Delete"
-					/>
-				</div>
-				<div class="right">
-					{exercise.description}
-				</div>
-			</li>
-		{/each}
-	{/await}
+	{#each exercises as exercise, index (index)}
+		<li>
+			<div class="left">
+				{exercise.name}
+				<br />
+				<Button href="/exercises/edit/{exercise.id}">edit</Button>
+			</div>
+			<div class="right">
+				{exercise.description}
+			</div>
+		</li>
+	{/each}
 </ul>
 
 <style>

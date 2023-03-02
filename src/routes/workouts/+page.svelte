@@ -1,8 +1,10 @@
 <script lang="ts">
-	import {Workout} from '$lib/Workout';
+	import type {Workout} from '$lib/Workout';
 	import Button from 'comp/Button.svelte';
+	import type {PageData} from './$types';
 
-	const workoutPromise = Workout.allWorkouts();
+	export let data: PageData;
+	const {workouts} = data;
 
 	function getWorkoutTime(workout: Workout): string {
 		const totalSeconds = workout.totalTime;
@@ -15,20 +17,17 @@
 <Button href="/workouts/new">New Workout</Button>
 
 <ul>
-	{#await workoutPromise}
-		<h1 class="loading">Loading Workouts</h1>
-	{:then workouts}
-		{#each workouts as workout (workout.id)}
-			<li>
-				<div class="left">
-					{workout.name}
-					<br />
-					<Button href="/workouts/edit/{workout.id}">edit</Button>
-				</div>
-				<div class="right">
-					{getWorkoutTime(workout)}
-				</div>
-			</li>
-		{/each}
-	{/await}
+	{#each workouts as workout (workout.id)}
+		<li>
+			<div class="left">
+				{workout.name}
+				<br />
+				<Button href="/workouts/edit/{workout.id}">Edit</Button>
+				<Button href="/workouts/play/{workout.id}">Play</Button>
+			</div>
+			<div class="right">
+				{getWorkoutTime(workout)}
+			</div>
+		</li>
+	{/each}
 </ul>

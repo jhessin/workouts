@@ -6,11 +6,11 @@
 
 	export let data: PageData;
 
-	let {workout} = data;
+	let {workout, exercises} = data;
 
 	let {id, name, sets} = workout;
-	const exercisePromise = Exercise.allExercises();
-	let newExerciseId: string;
+
+	let newExercise: Exercise;
 	let newTime: number = 20;
 	if (sets.length === 0) sets = [new ExerciseSet()];
 	let setIndex: number;
@@ -31,7 +31,7 @@
 </script>
 
 <form on:submit|preventDefault={submitForm}>
-	<label for="name">Workout Name *</label>
+	<label for="name">Workout Name</label>
 	<input
 		inputmode="text"
 		name="name"
@@ -68,23 +68,18 @@
 				<ul>
 					{#each set.exercises as ex, index (index)}
 						<li>
-							{#await exerciseName(ex.id)}
-								<label for="ex{ex.id}">{ex.id}</label>
-								<label for="time{ex.id}">{ex.time}</label>
-							{:then name}
-								<label for="ex{ex.id}">{name}</label>
-								<label for="time{ex.id}">{ex.time}</label>
-								<Button
-									form
-									danger
-									on:click={async () => {
-										sets[currentSetIndex].exercises = sets[
-											currentSetIndex
-										].exercises.filter((exercise) => ex.id !== exercise.id);
-									}}
-									value="Delete from workout"
-								/>
-							{/await}
+							<label for="ex{ex.id}">{ex.name}</label>
+							<label for="time{ex.id}">{ex.time}</label>
+							<Button
+								form
+								danger
+								on:click={async () => {
+									sets[currentSetIndex].exercises = sets[
+										currentSetIndex
+									].exercises.filter((exercise, exIndex) => exIndex !== index);
+								}}
+								value="Delete from workout"
+							/>
 						</li>
 					{/each}
 				</ul>
@@ -96,46 +91,39 @@
 		/>
 	</ul>
 
-	{#await exercisePromise}
-		<p>Loading Exercises...</p>
-	{:then allExercises}
-		<form
-			on:submit|preventDefault={async () => {
-				sets[setIndex].exercises = [
-					...sets[setIndex].exercises,
-					{
-						id: newExerciseId,
-						time: newTime,
-					},
-				];
-				newExerciseId = '';
-				newTime = 20;
-			}}
+	<form
+		on:submit|preventDefault={async () => {
+			sets[setIndex].exercises = [
+				...sets[setIndex].exercises,
+				newExercise.timed(newTime),
+			];
+			newExercise = exercises[0];
+			newTime = 20;
+		}}
+	>
+		<label for="exercise">Choose an exercise to add</label>
+		<select
+			id="exercise"
+			name="exercise"
+			bind:value={newExercise}
 		>
-			<label for="exercise">Choose an exercise to add</label>
-			<select
-				id="exercise"
-				name="exercise"
-				bind:value={newExerciseId}
-			>
-				{#each allExercises as exercise (exercise.id)}
-					<option value={exercise.id}>{exercise.name}</option>
-				{/each}
-			</select>
+			{#each exercises as exercise (exercise.id)}
+				<option value={exercise}>{exercise.name}</option>
+			{/each}
+		</select>
 
-			<label for="time">How long (in seconds)?</label>
-			<input
-				inputmode="numeric"
-				type="number"
-				bind:value={newTime}
-			/>
+		<label for="time">How long (in seconds)?</label>
+		<input
+			inputmode="numeric"
+			type="number"
+			bind:value={newTime}
+		/>
 
-			<input
-				type="submit"
-				value="save"
-			/>
-		</form>
-	{/await}
+		<input
+			type="submit"
+			value="save"
+		/>
+	</form>
 
 	<Button
 		submit
@@ -151,9 +139,3 @@
 		value="Delete"
 	/>
 </form>
-
-<style>
-	.danger {
-		background-color: red;
-	}
-</style>
